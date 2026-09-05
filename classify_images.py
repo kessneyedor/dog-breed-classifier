@@ -4,7 +4,7 @@
 #                                                                             
 # PROGRAMMER: Kessney Edor
 # DATE CREATED: 09/04/2026                                
-# REVISED DATE: 
+# REVISED DATE: Fixed comma/space padding bug in label matching logic
 # PURPOSE: Create a function classify_images that uses the classifier function 
 #          to create the classifier labels and then compares the classifier 
 #          labels to the pet image labels. This function inputs:
@@ -80,9 +80,15 @@ def classify_images(images_dir, results_dic, model):
         # Get the pet label already stored at index 0
         pet_label = results_dic[filename][0]
 
+        # Replace commas with spaces so every name in a multi-name list
+        # (e.g. "dalmatian, coach dog, carriage dog") is bounded by spaces
+        # regardless of whether it appears first, middle, or last in the list.
+        # This is used ONLY for matching, not for the label we store/display.
+        classifier_label_for_match = classifier_label.replace(',', ' ')
+
         # Pad both labels with spaces to avoid partial-word false matches
         padded_pet_label = ' ' + pet_label + ' '
-        padded_classifier_label = ' ' + classifier_label + ' '
+        padded_classifier_label = ' ' + classifier_label_for_match + ' '
 
         # Check if the pet label appears within the classifier label
         if padded_pet_label in padded_classifier_label:
@@ -90,5 +96,6 @@ def classify_images(images_dir, results_dic, model):
         else:
             match = 0
 
-        # Add classifier_label and match to the results dictionary
+        # Add classifier_label (original, with commas, for display/printing)
+        # and match to the results dictionary
         results_dic[filename].extend([classifier_label, match])
